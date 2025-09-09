@@ -80,14 +80,16 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# --- CONFIGURAÇÃO DA BASE DE DADOS (Método Final com URL Externo) ---
+# --- CONFIGURAÇÃO DA BASE DE DADOS (Método Final com URL Externo e SSL Forçado) ---
 import dj_database_url
 
 if 'RENDER' in os.environ:
     DATABASES = {
         'default': dj_database_url.config(
-            default="postgresql://central_de_chamados_dps_user:3DFi13KLH18HTtxQHttVeqlvuiveSmZS9@dpg-d307g5ruibrs73an02g0-a.oregon-postgres.render.com/central_de_chamados_dps",
+            # Adicionámos "?sslmode=require" ao final do URL
+            default="postgresql://central_de_chamados_dps_user:3DFi13KLH18HTtxQHttVeqlvuiveSmZS9@dpg-d307g5ruibrs73an02g0-a.oregon-postgres.render.com/central_de_chamados_dps?sslmode=require",
             conn_max_age=600,
+            # A linha abaixo já não é estritamente necessária, mas não prejudica
             ssl_require=True
         )
     }
