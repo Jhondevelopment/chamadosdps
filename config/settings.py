@@ -130,3 +130,11 @@ LOGOUT_REDIRECT_URL = 'login'
 # --- Configuração de E-mail para Desenvolvimento ---
 # Isso diz ao Django para imprimir e-mails no console em vez de enviá-los.
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+import os
+
+# ... (aqui fica o resto das suas configurações, não apague nada) ...
+
+# CONFIGURAÇÃO DE ARQUIVOS ESTÁTICOS PARA PRODUÇÃO
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
