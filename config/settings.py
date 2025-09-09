@@ -1,13 +1,12 @@
 # config/settings.py
 import os
-import dj_database_url
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Quick-start development settings - unsuitable for production
-SECRET_KEY = 'django-insecure-t0t@%l&57%(=y%khm^c4s9wxz(nx$#&3wex11@ezq+r7^o$v6g' # Pode manter a sua chave secreta original
+SECRET_KEY = 'django-insecure-t0t@%l&57%(=y%khm^c4s9wxz(nx$#&3wex11@ezq+r7^o$v6g'
 
 # Application definition
 INSTALLED_APPS = [
@@ -22,7 +21,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    # WhiteNoise Middleware será adicionado automaticamente abaixo
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -51,22 +50,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-# Base de dados padrão (SQLite para desenvolvimento local)
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
-
-# Password validation
-AUTH_PASSWORD_VALIDATORS = [
-    { 'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator', },
-    { 'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator', },
-    { 'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator', },
-    { 'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator', },
-]
-
 # Internationalization
 LANGUAGE_CODE = 'pt-br'
 TIME_ZONE = 'America/Sao_Paulo'
@@ -81,34 +64,40 @@ LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'dashboard'
 LOGOUT_REDIRECT_URL = 'login'
 
-# Configuração de E-mail para Desenvolvimento
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-
 
 # ==============================================================================
-# == CONFIGURAÇÕES DE PRODUÇÃO (RENDER) vs. DESENVOLVIMENTO LOCAL             ==
+# == CONFIGURAÇÕES DE AMBIENTE                                                ==
 # ==============================================================================
 
-# Verifica se estamos a correr no ambiente da Render
-IS_ON_RENDER = 'RENDER' in os.environ
+# DEBUG é False em produção (Render), True localmente
+DEBUG = 'RENDER' not in os.environ
 
-# DEBUG é False em produção (mais seguro), True em desenvolvimento local
-DEBUG = not IS_ON_RENDER
-
-# Linha final e correta:
 ALLOWED_HOSTS = ['central-de-chamados-dps.onrender.com', 'localhost', '127.0.0.1']
-
-# Adiciona o WhiteNoise ao Middleware para servir ficheiros estáticos em produção
-MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
-
-# Configuração da Base de Dados de Produção (PostgreSQL da Render)
-if IS_ON_RENDER:
-    DATABASES['default'] = dj_database_url.config(
-        conn_max_age=600,
-        ssl_require=True,
-    )
 
 # Configuração de Arquivos Estáticos para Produção (com WhiteNoise)
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# --- CONFIGURAÇÃO DA BASE DE DADOS ---
+# Se estiver no ambiente Render, usa a base de dados PostgreSQL.
+# Caso contrário (localmente), usa o sqlite3.
+if 'RENDER' in os.environ:
+    # PREENCHA OS 4 CAMPOS ABAIXO COM AS INFORMAÇÕES DA SUA BASE DE DADOS NA RENDER
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'central de chamados dps',
+            'USER': 'dpg-d307g5ruibrs73an82g0-a',
+            'PASSWORD': '3DFIi3kLHl8HTtxQHtVeglvuiveSmZS9',
+            'HOST': 'dpg-d307g5ruibrs73an82g0-a',
+            'PORT': '5432',
+        }
+    }
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
