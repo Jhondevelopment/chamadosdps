@@ -83,14 +83,13 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 # Se estiver no ambiente Render, usa a base de dados PostgreSQL.
 # Caso contrário (localmente), usa o sqlite3.
 if 'RENDER' in os.environ:
-    # PREENCHA OS 4 CAMPOS ABAIXO COM AS INFORMAÇÕES DA SUA BASE DE DADOS NA RENDER
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            'NAME': 'central de chamados dps',
-            'USER': 'dpg-d307g5ruibrs73an82g0-a',
-            'PASSWORD': '3DFIi3kLHl8HTtxQHtVeglvuiveSmZS9',
-            'HOST': 'dpg-d307g5ruibrs73an82g0-a',
+            'NAME': 'central_de_chamados_dps',
+            'USER': 'central_de_chamados_dps_user',
+            'PASSWORD': '3DFi13KLH18HTtxQHttVeqlvuiveSmZS9',
+            'HOST': 'dpg-d307g5ruibrs73an02g0-a',
             'PORT': '5432',
         }
     }
