@@ -85,5 +85,10 @@ LOGOUT_REDIRECT_URL = 'login'
 # Configuração de E-mail para Desenvolvimento
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
+# Configuração de Arquivos Estáticos para Produção (com WhiteNoise)
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
 
 # =================================================================
