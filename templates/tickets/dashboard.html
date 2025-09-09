@@ -1,0 +1,60 @@
+{% extends 'tickets/base.html' %}
+{% load l10n %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        {% if user.is_staff %}
+            <h2>Painel de Atendimento (Chamados Ativos)</h2>
+        {% else %}
+            <h2>Meus Chamados (Ativos)</h2>
+        {% endif %}
+    </div>
+    {% if not user.is_staff %}
+        <a href="{% url 'novo_chamado' %}" class="btn btn-primary">Abrir Novo Chamado</a>
+    {% endif %}
+</div>
+
+<div class="mb-4">
+    <form method="get" action="{% url 'dashboard' %}">
+        <div class="input-group">
+            <input type="text" class="form-control" name="q" placeholder="Buscar em chamados ativos..." value="{{ query|default:'' }}">
+            <button class="btn btn-outline-secondary" type="submit">Buscar</button>
+        </div>
+    </form>
+</div>
+
+<div class="list-group">
+    {% for chamado in chamados %}
+        {% if chamado.urgencia == 'A' %}{% with 'danger' as cor_urgencia %}{% endwith %}{% endif %}
+        {% if chamado.urgencia == 'M' %}{% with 'warning' as cor_urgencia %}{% endwith %}{% endif %}
+        {% if chamado.urgencia == 'B' %}{% with 'success' as cor_urgencia %}{% endwith %}{% endif %}
+
+        <a href="{% url 'detalhe_chamado' chamado.id %}" class="list-group-item list-group-item-action flex-column align-items-start border-start border-5 border-{{ cor_urgencia }} mb-2 shadow-sm text-decoration-none text-dark">
+
+            <div class="d-flex w-100 justify-content-between">
+                <h5 class="mb-1">#{{ chamado.id }} - {{ chamado.titulo }}</h5>
+                <small class="text-muted">{{ chamado.data_abertura|localize }}</small>
+            </div>
+            <p class="mb-1">{{ chamado.descricao|truncatewords:30 }}</p>
+            <div class="d-flex justify-content-between align-items-center mt-2">
+                <small class="text-muted"><b>Solicitante:</b> {{ chamado.solicitante.username }} | <b>Filial:</b> {{ chamado.filial_solicitante.nome }}</small>
+
+                {% if chamado.status == 'Aberto' %}<span class="badge bg-primary">{{ chamado.status }}</span>{% endif %}
+                {% if chamado.status == 'Em Atendimento' %}<span class="badge bg-info text-dark">{{ chamado.status }}</span>{% endif %}
+                {% if chamado.status == 'Aguardando Informação' %}<span class="badge bg-warning text-dark">{{ chamado.status }}</span>{% endif %}
+                {% if chamado.status == 'Concluído' %}<span class="badge bg-success">{{ chamado.get_status_display }}</span>{% endif %}
+                {% if chamado.status == 'Fechado' %}<span class="badge bg-secondary">{{ chamado.status }}</span>{% endif %}
+            </div>
+        </a>
+    {% empty %}
+        <div class="alert alert-info">
+            {% if query %}
+                Nenhum chamado ativo encontrado para a busca "{{ query }}".
+            {% else %}
+                Nenhum chamado ativo no momento.
+            {% endif %}
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

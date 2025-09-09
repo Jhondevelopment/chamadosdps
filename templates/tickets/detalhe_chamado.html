@@ -1,0 +1,84 @@
+{% extends 'tickets/base.html' %}
+{% load l10n %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center">
+    <h2>Detalhes do Chamado #{{ chamado.id }}</h2>
+    <a href="{% url 'dashboard' %}" class="btn btn-secondary">Voltar para o Dashboard</a>
+</div>
+<hr>
+
+<div class="row">
+    <div class="{% if user.is_staff %}col-md-8{% else %}col-12{% endif %}">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4>{{ chamado.titulo }}</h4>
+            </div>
+            <div class="card-body">
+                <p><strong>Descrição:</strong></p>
+                <p>{{ chamado.descricao|linebreaks }}</p>
+                <hr>
+                <p><strong>Solicitante:</strong> {{ chamado.solicitante.username }}</p>
+                <p><strong>Filial:</strong> {{ chamado.filial_solicitante.nome }}</p>
+                <p><strong>Atribuído a:</strong> {{ chamado.atribuido_a.username|default:"Ninguém" }}</p>
+                <p><strong>Número do PC:</strong> {{ chamado.numero_pc|default:"Não informado" }}</p>
+                <p><strong>Data de Abertura:</strong> {{ chamado.data_abertura|localize }}</p>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h4>Histórico de Comentários</h4>
+            </div>
+            <div class="card-body">
+                <div id="lista-comentarios">
+                    {% for comentario in comentarios %}
+                        <div class="mb-3">
+                            <p class="mb-0"><strong>{{ comentario.autor.username }}</strong> <small class="text-muted">em {{ comentario.data_criacao|localize }}</small></p>
+                            <p style="white-space: pre-wrap;">{{ comentario.texto }}</p>
+                        </div>
+                        {% if not forloop.last %}<hr>{% endif %}
+                    {% empty %}
+                        <p id="sem-comentarios">Nenhum comentário ainda.</p>
+                    {% endfor %}
+                </div>
+                <hr>
+                <h5 class="mt-4">Adicionar um Comentário</h5>
+                <form method="post" 
+                      hx-post="." 
+                      hx-target="#lista-comentarios" 
+                      hx-swap="beforeend"
+                      hx-on="htmx:afterRequest: this.reset()">
+                    {% csrf_token %}
+                    {{ comment_form.texto }}
+                    <button type="submit" name="submit_comentario" class="btn btn-info mt-2">Enviar Comentário</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    {% if user.is_staff %}
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                Ações
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label"><strong>Status</strong></label>
+                        {{ update_form.status }}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label"><strong>Atribuído a</strong></label>
+                        {{ update_form.atribuido_a }}
+                    </div>
+                    <button type="submit" name="submit_atualizacao" class="btn btn-primary w-100">Atualizar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endif %} </div>
+<br>
+{% endblock %}

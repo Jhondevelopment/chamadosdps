@@ -1,0 +1,48 @@
+{% extends 'tickets/base.html' %}
+{% load l10n %}
+
+{% block content %}
+<h2>Arquivo Geral de Chamados</h2>
+<p class="text-muted">Busque em todos os chamados, incluindo os fechados. Você pode buscar por ID, título, descrição ou nome do solicitante.</p>
+
+<div class="mb-4">
+    <form method="get" action="{% url 'painel_busca' %}">
+        <div class="input-group">
+            <input type="text" class="form-control" name="q" placeholder="Buscar em todo o histórico..." value="{{ query|default:'' }}">
+            <button class="btn btn-primary" type="submit">Buscar</button>
+        </div>
+    </form>
+</div>
+
+<div class="list-group">
+    {% for chamado in chamados %}
+        {% if chamado.urgencia == 'A' %}{% with 'danger' as cor_urgencia %}{% endwith %}{% endif %}
+        {% if chamado.urgencia == 'M' %}{% with 'warning' as cor_urgencia %}{% endwith %}{% endif %}
+        {% if chamado.urgencia == 'B' %}{% with 'success' as cor_urgencia %}{% endwith %}{% endif %}
+
+        <a href="{% url 'detalhe_chamado' chamado.id %}" class="list-group-item list-group-item-action flex-column align-items-start border-start border-5 border-{{ cor_urgencia }} mb-2 shadow-sm text-decoration-none text-dark">
+
+            <div class="d-flex w-100 justify-content-between">
+                <h5 class="mb-1">#{{ chamado.id }} - {{ chamado.titulo }}</h5>
+                <small class="text-muted">{{ chamado.data_abertura|localize }}</small>
+            </div>
+            <p class="mb-1">{{ chamado.descricao|truncatewords:30 }}</p>
+            <div class="d-flex justify-content-between align-items-center mt-2">
+                <small class="text-muted"><b>Solicitante:</b> {{ chamado.solicitante.username }} | <b>Filial:</b> {{ chamado.filial_solicitante.nome }}</small>
+
+                {% if chamado.status == 'Aberto' %}<span class="badge bg-primary">{{ chamado.status }}</span>{% endif %}
+                {% if chamado.status == 'Em Atendimento' %}<span class="badge bg-info text-dark">{{ chamado.status }}</span>{% endif %}
+                {% if chamado.status == 'Aguardando Informação' %}<span class="badge bg-warning text-dark">{{ chamado.status }}</span>{% endif %}
+                {% if chamado.status == 'Concluído' %}<span class="badge bg-success">{{ chamado.get_status_display }}</span>{% endif %}
+                {% if chamado.status == 'Fechado' %}<span class="badge bg-secondary">{{ chamado.status }}</span>{% endif %}
+            </div>
+        </a>
+    {% empty %}
+        {% if query %}
+            <div class="alert alert-info">Nenhum chamado encontrado no histórico para a busca "{{ query }}".</div>
+        {% else %}
+            <div class="alert alert-secondary">Use a barra de busca acima para encontrar chamados no arquivo.</div>
+        {% endif %}
+    {% endfor %}
+</div>
+{% endblock %}
