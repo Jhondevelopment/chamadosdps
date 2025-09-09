@@ -1,5 +1,6 @@
 # config/settings.py
 import os
+import dj_database_url
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -79,19 +80,16 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# --- CONFIGURAÇÃO DA BASE DE DADOS ---
-# Se estiver no ambiente Render, usa a base de dados PostgreSQL.
-# Caso contrário (localmente), usa o sqlite3.
+# --- CONFIGURAÇÃO DA BASE DE DADOS (Método Final com URL Externo) ---
+import dj_database_url
+
 if 'RENDER' in os.environ:
     DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': 'central_de_chamados_dps',
-            'USER': 'central_de_chamados_dps_user',
-            'PASSWORD': '3DFi13KLH18HTtxQHttVeqlvuiveSmZS9',
-            'HOST': 'dpg-d307g5ruibrs73an02g0-a',
-            'PORT': '5432',
-        }
+        'default': dj_database_url.config(
+            default="postgresql://central_de_chamados_dps_user:3DFi13KLH18HTtxQHttVeqlvuiveSmZS9@dpg-d307g5ruibrs73an02g0-a.oregon-postgres.render.com/central_de_chamados_dps",
+            conn_max_age=600,
+            ssl_require=True
+        )
     }
 else:
     DATABASES = {
