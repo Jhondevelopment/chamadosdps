@@ -7,7 +7,6 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Quick-start development settings - unsuitable for production
-# SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-t0t@%l&57%(=y%khm^c4s9wxz(nx$#&3wex11@ezq+r7^o$v6g' # Pode manter a sua chave secreta original
 
 # Application definition
@@ -23,7 +22,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    # WhiteNoise Middleware deve vir aqui, mas será adicionado automaticamente abaixo
+    # WhiteNoise Middleware será adicionado automaticamente abaixo
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -85,10 +84,31 @@ LOGOUT_REDIRECT_URL = 'login'
 # Configuração de E-mail para Desenvolvimento
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
+
+# ==============================================================================
+# == CONFIGURAÇÕES DE PRODUÇÃO (RENDER) vs. DESENVOLVIMENTO LOCAL             ==
+# ==============================================================================
+
+# Verifica se estamos a correr no ambiente da Render
+IS_ON_RENDER = 'RENDER' in os.environ
+
+# DEBUG é False em produção (mais seguro), True em desenvolvimento local
+DEBUG = not IS_ON_RENDER
+
+# Linha final e correta:
+ALLOWED_HOSTS = ['central-de-chamados-dps.onrender.com', 'localhost', '127.0.0.1']
+
+# Adiciona o WhiteNoise ao Middleware para servir ficheiros estáticos em produção
+MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
+
+# Configuração da Base de Dados de Produção (PostgreSQL da Render)
+if IS_ON_RENDER:
+    DATABASES['default'] = dj_database_url.config(
+        conn_max_age=600,
+        ssl_require=True,
+    )
+
 # Configuração de Arquivos Estáticos para Produção (com WhiteNoise)
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-
-
-# =================================================================
